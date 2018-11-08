@@ -1,25 +1,19 @@
-package spotifyparser;
+package spotifyplayer;
 
-import java.awt.image.BufferedImage;
-import java.net.URL;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-
 
 public class Album {
     private String artistName;
     private String albumName;
     private String imageURL;
-    private ArrayList<String> tracks;
-    private ArrayList<Integer> trackLengthsInSeconds;
+    private ArrayList<Track> tracks;
     
-    public Album(String artistName, String albumName, String imageURL, ArrayList<String> tracks, ArrayList<Integer> trackLengthsInSeconds)
+    public Album(String artistName, String albumName, String imageURL, ArrayList<Track> tracks)
     {
         this.artistName = artistName;
         this.albumName = albumName;
         this.imageURL = imageURL;
         this.tracks = tracks;
-        this.trackLengthsInSeconds = trackLengthsInSeconds;
     }
 
     public String getArtistName() {
@@ -46,24 +40,31 @@ public class Album {
         this.imageURL = imageURL;
     }
 
-    public ArrayList<String> getTracks() {
+    public ArrayList<Track> getTracks() {
         return tracks;
-    }
-    
-    public ArrayList<Integer> getTrackLengthsInSeconds() {
-        return trackLengthsInSeconds;
     }
     
     public String toString()
     {
-        String output = "Album from: "+ artistName+" \nTitle: "+ albumName + "\n\nTracks:\n";
+        String output = artistName+" \nTitle: "+ albumName + "\n\nTracks:\n";
         
-        if (tracks != null && trackLengthsInSeconds != null && 
-            tracks.size() > 0 && tracks.size() == trackLengthsInSeconds.size())
+        if (tracks != null && tracks.size() > 0)
         {
             for (int i=0; i<tracks.size(); ++i)
             {
-                output += tracks.get(i) + " [" + (trackLengthsInSeconds.get(i) / 60) + ":" + (trackLengthsInSeconds.get(i) % 60) + "]\n";
+                Track track = tracks.get(i);
+                int duration = track.getDurationInSeconds();
+                output += track.getTitle() + " [" + (duration / 60) + ":" + (duration % 60) + "]";
+                
+                if (track.getUrl().equals("") == false)
+                {
+                    output += " [preview available]\n";
+                }
+                else
+                {
+                    output += "\n";
+                }
+                
             }            
         }
         

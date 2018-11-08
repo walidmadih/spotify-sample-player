@@ -1,4 +1,4 @@
-package spotifyparser;
+package spotifyplayer;
 
 public class Track {
     private int number;

@@ -1,4 +1,4 @@
-package spotifyparser;
+package spotifyplayer;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -14,8 +14,8 @@ import java.util.Base64;
 
 
 public class SpotifyController{
-    final static private String SPOTIFY_CLIENT_ID     = "a392f4c72f1b469cb2e38ce87aec6e7b";
-    final static private String SPOTIFY_CLIENT_SECRET = "349660472b6c4aafa949bbb90e104e4c";
+    static final String SPOTIFY_CLIENT_ID     = "a392f4c72f1b469cb2e38ce87aec6e7b";
+    static final String SPOTIFY_CLIENT_SECRET = "349660472b6c4aafa949bbb90e104e4c";
     
     public static String getArtistId(String artistNameQuery)
     {
@@ -23,9 +23,6 @@ public class SpotifyController{
         
         try
         {
-            // TODO - From an artist string, get the spotify ID
-            // Recommended Endpoint: https://api.spotify.com/v1/search
-            // Parse the JSON output to retrieve the ID
         
             String endpoint = "https://api.spotify.com/v1/search";
             String params = "type=artist&q=" + artistNameQuery;
@@ -41,9 +38,7 @@ public class SpotifyController{
                 artistId = item.get("id").getAsString();
                 
             }
-            
-            // replace this string...
-            artistId = "3WrFJ7ztbogyGnTHbHJFl2";
+
         }
         catch(Exception e)
         {
@@ -84,13 +79,6 @@ public class SpotifyController{
         ArrayList<String> albumIds = getAlbumIdsFromArtist(artistId);
         ArrayList<Album> albums = new ArrayList<>();
         
-        // TODO - Retrieve all album data from the list of album ids for an artist
-        // 
-        // You can have a look at the Album class included
-        // 
-        // Recommended endpoint (id is the id of the album): 
-        //             https://api.spotify.com/v1/albums/{id}
-        //
         // Arguments - You can filter for the CA market
         
         for(String albumId : albumIds)
@@ -104,23 +92,27 @@ public class SpotifyController{
             JsonObject artists = artistsArray.get(0).getAsJsonObject();
             JsonArray images = root.getAsJsonArray("images").getAsJsonArray();
             JsonObject tracks = root.get("tracks").getAsJsonObject();
-            JsonArray items = tracks.get("items").getAsJsonArray();
+            JsonArray trackItems = tracks.get("items").getAsJsonArray();
             
+            //Creating a list of tracks for each album
+            ArrayList<Track> trackList = new ArrayList<>();
+            for (int i = 0; i < trackItems.size(); i++) {
+                JsonObject track = trackItems.get(i).getAsJsonObject();
+                trackList.add(new Track(
+                        //Number of Track in Album
+                        i, 
+                        //Title
+                        track.get("name").getAsString(), 
+                        //Duration in ms to seconds
+                        (track.get("duration_ms").getAsInt()/1000),
+                        //URL
+                        track.get("href").getAsString()));       
+            }
             
             String artistName = artists.get("name").getAsString();
             String albumName = root.get("name").getAsString();
-            String coverURL = images.get(0).getAsJsonObject().get("url").getAsString();;
-            
-            ArrayList<String> trackTitles = new ArrayList<>();
-            ArrayList<Integer> trackLengths = new ArrayList<>();
-            
-            for(int x =0; x < items.size(); x++){
-                JsonObject temporaryArtists = items.get(x).getAsJsonObject();
-                trackTitles.add(temporaryArtists.getAsJsonObject().get("name").getAsString());
-                trackLengths.add(Integer.parseInt(temporaryArtists.getAsJsonObject().get("duration_ms").getAsString())/1000);
-            }
-            
-            albums.add(new Album(artistName, albumName, coverURL, trackTitles, trackLengths));                
+            String coverURL = images.get(0).getAsJsonObject().get("url").getAsString();
+            albums.add(new Album(artistName, albumName, coverURL, trackList));                
         }
         
         return albums;
@@ -225,4 +217,12 @@ public class SpotifyController{
         
         return "";
     }
+    
+    /*public void shutdown(){
+        if(sliderExecutor != null){
+            sliderExecutor.shutdown();
+        }
+        
+        Platform.exit();
+    }*/
 }
