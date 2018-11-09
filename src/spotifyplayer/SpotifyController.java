@@ -106,7 +106,7 @@ public class SpotifyController{
                         //Duration in ms to seconds
                         (track.get("duration_ms").getAsInt()/1000),
                         //URL
-                        track.get("href").getAsString()));       
+                        track.get("preview_url").toString().replace("\"", "")));       
             }
             
             String artistName = artists.get("name").getAsString();

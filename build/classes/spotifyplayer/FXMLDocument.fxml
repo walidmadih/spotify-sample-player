@@ -2,20 +2,37 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="426.0" prefWidth="629.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="spotifyplayer.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="462.0" prefWidth="629.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="spotifyplayer.FXMLDocumentController">
     <children>
-      <Slider fx:id="trackSlider" disable="true" layoutX="77.0" layoutY="392.0" max="30.0" prefHeight="14.0" prefWidth="458.0" />
-      <Pane fx:id="pane" layoutX="8.0" layoutY="12.0" prefHeight="94.0" prefWidth="607.0">
+      <MenuBar layoutY="1.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="saveAlbumCovers" mnemonicParsing="false" onAction="#saveAlbumCovers" text="Save Album Covers">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <Slider fx:id="trackSlider" disable="true" layoutX="65.0" layoutY="428.0" max="30.0" prefHeight="14.0" prefWidth="458.0" />
+      <Pane fx:id="pane" layoutX="11.0" layoutY="34.0" prefHeight="94.0" prefWidth="607.0">
          <children>
             <Label fx:id="albumLabel" layoutX="14.0" layoutY="59.0" prefHeight="35.0" prefWidth="516.0" text="Album">
                <font>
@@ -27,17 +44,17 @@
                </font></Label>
             <ProgressIndicator fx:id="progressIndicator" layoutX="516.0" layoutY="12.0" prefHeight="70.0" prefWidth="77.0" />
          </children></Pane>
-      <TableView fx:id="tracksTableView" layoutX="277.0" layoutY="149.0" prefHeight="224.0" prefWidth="342.0">
+      <TableView fx:id="tracksTableView" layoutX="279.0" layoutY="170.0" prefHeight="224.0" prefWidth="342.0">
         <columns>
           <TableColumn prefWidth="28.0" text="#" />
           <TableColumn prefWidth="313.0" text="Title" />
         </columns>
       </TableView>
-      <TextField fx:id="input" layoutX="310.0" layoutY="117.0" prefHeight="25.0" prefWidth="279.0" />
-      <Button fx:id="leftButton" layoutX="278.0" layoutY="117.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&lt;" />
-      <Button fx:id="rightButton" layoutX="589.0" layoutY="117.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&gt;" />
-      <ImageView fx:id="albumImageView" fitHeight="250.0" fitWidth="250.0" layoutX="14.0" layoutY="117.0" pickOnBounds="true" preserveRatio="true" />
-      <Button fx:id="playButton" layoutX="14.0" layoutY="387.0" mnemonicParsing="false" text="Play" />
-      <Label fx:id="timeLabel" layoutX="545.0" layoutY="391.0" prefHeight="17.0" prefWidth="70.0" text="Time Label" />
+      <TextField fx:id="input" layoutX="310.0" layoutY="140.0" prefHeight="25.0" prefWidth="279.0" />
+      <Button fx:id="leftButton" layoutX="278.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&lt;" />
+      <Button fx:id="rightButton" layoutX="589.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&gt;" />
+      <ImageView fx:id="albumImageView" fitHeight="257.0" fitWidth="250.0" layoutX="14.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true" />
+      <Button fx:id="playButton" layoutX="14.0" layoutY="422.0" mnemonicParsing="false" text="Play" />
+      <Label fx:id="timeLabel" layoutX="535.0" layoutY="426.0" prefHeight="17.0" prefWidth="70.0" text="00:00/00:00" />
     </children>
 </AnchorPane>
