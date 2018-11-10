@@ -6,6 +6,8 @@
 package spotifyplayer;
 
 import com.sun.javafx.collections.ObservableListWrapper;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -16,6 +18,8 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -44,6 +48,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 /**
@@ -102,6 +107,7 @@ public class FXMLDocumentController implements Initializable {
 
     ArrayList<Album> albums = null;
     int currentAlbumIndex = 0;
+    String artistName;
 
     private void startMusic(String url) {
         try {
@@ -327,7 +333,8 @@ public class FXMLDocumentController implements Initializable {
                     if (e.getCode() == KeyCode.ENTER) {
                         if ("".compareTo(input.getText()) != 0) {
                             currentAlbumIndex = 0;
-                            search(input.getText());
+                            artistName = input.getText();
+                            search(artistName);
 
                         }
                     }
@@ -368,8 +375,8 @@ public class FXMLDocumentController implements Initializable {
             } catch (Exception error) {
             }
         });
-
-        searchAlbumsFromArtist("lil pump");
+        artistName = "lil pump";
+        searchAlbumsFromArtist(artistName);
         displayAlbum(0);
 
     }
@@ -395,10 +402,50 @@ public class FXMLDocumentController implements Initializable {
         isLoading.set(false);
     }
 
-    public void saveAlbumCovers() {
+    @FXML
+    public void saveAlbumCovers(ActionEvent e) {
         try {
+            String saveArtist = albums.get(0).getArtistName();
+            File directory = new File("./Images/" + saveArtist);
+            directory.mkdir();
+            for (Album album : albums) {
 
-        } catch (Exception e) {
+                    String saveAlbum = album.getAlbumName();
+                    if (saveAlbum.contains("/")) {
+                        saveAlbum = saveAlbum.replace("/", "");
+                    }
+                    if (saveAlbum.contains("\\")) {
+                        saveAlbum = saveAlbum.replace("\\", "");
+                    }
+                    if (saveAlbum.contains(":")) {
+                        saveAlbum = saveAlbum.replace(":", "");
+                    }
+                    if (saveAlbum.contains("*")) {
+                        saveAlbum = saveAlbum.replace("*", "");
+                    }
+                    if (saveAlbum.contains("?")) {
+                        saveAlbum = saveAlbum.replace("?", "");
+                    }
+                    if (saveAlbum.contains("\"")) {
+                        saveAlbum = saveAlbum.replace("\"", "");
+                    }
+                    if (saveAlbum.contains("<")) {
+                        saveAlbum = saveAlbum.replace("<", "");
+                    }
+                    if (saveAlbum.contains(">")) {
+                        saveAlbum = saveAlbum.replace(">", "");
+                    }
+                    if (saveAlbum.contains("|")) {
+                        saveAlbum = saveAlbum.replace("|", "");
+                    }
+
+                    Image cover = new Image(album.getImageURL());
+                    BufferedImage coverImage = SwingFXUtils.fromFXImage(cover, null);
+                    ImageIO.write(coverImage, "png", new File("images/" + saveArtist + "/"
+                            + saveAlbum + ".png"));
+               
+            }
+        } catch (Exception error) {
 
         }
     }

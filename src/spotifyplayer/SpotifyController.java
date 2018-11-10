@@ -100,7 +100,7 @@ public class SpotifyController{
                 JsonObject track = trackItems.get(i).getAsJsonObject();
                 trackList.add(new Track(
                         //Number of Track in Album
-                        i, 
+                        i+1, 
                         //Title
                         track.get("name").getAsString(), 
                         //Duration in ms to seconds
