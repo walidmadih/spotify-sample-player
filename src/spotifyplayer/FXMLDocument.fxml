@@ -50,7 +50,7 @@
           <TableColumn prefWidth="313.0" text="Title" />
         </columns>
       </TableView>
-      <TextField fx:id="input" layoutX="310.0" layoutY="140.0" prefHeight="25.0" prefWidth="279.0" />
+      <TextField fx:id="input" layoutX="310.0" layoutY="140.0" prefHeight="25.0" prefWidth="279.0" promptText="Search for artist..." />
       <Button fx:id="leftButton" layoutX="278.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&lt;" />
       <Button fx:id="rightButton" layoutX="589.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&gt;" />
       <ImageView fx:id="albumImageView" fitHeight="257.0" fitWidth="250.0" layoutX="14.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true" />
