@@ -14,6 +14,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -73,9 +75,6 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     Label titleLabel;
-
-    @FXML
-    Button playButton;
 
     @FXML
     Button leftButton;
@@ -139,9 +138,12 @@ public class FXMLDocumentController implements Initializable {
             });
             trackSlider.setMax(maxTime);
 
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, "The preview track might not be availible");
-            shutdownSlider();
+        } catch (Exception e) {
+            titleLabel.setText("ERROR");
+            albumLabel.setText("Track preview might not be availible");
+            trackSlider.setValue(0.0);
+            mediaPlayer.dispose();
+            buttonFix();
         }
     }
 
@@ -170,6 +172,7 @@ public class FXMLDocumentController implements Initializable {
                 isSliderAnimationActive = false;
             }
         } catch (Exception e) {
+            buttonFix();
         }
     }
 
@@ -201,7 +204,7 @@ public class FXMLDocumentController implements Initializable {
             albumImageView.setImage(coverImage);
             // Set tracks
             ArrayList<TrackForTableView> tracks = new ArrayList<>();
-            for (int i = 0; i < album.getTracks().size(); ++i) {
+            for (int i = 0; i < album.getTracks().size(); i++) {
                 TrackForTableView trackForTable = new TrackForTableView();
                 Track track = album.getTracks().get(i);
                 trackForTable.setTrackNumber(track.getNumber());
@@ -214,10 +217,31 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void searchAlbumsFromArtist(String artistName) {
-        // TODO - Make sure this is not blocking the UI
-        currentAlbumIndex = 0;
-        String artistId = SpotifyController.getArtistId(artistName);
-        albums = SpotifyController.getAlbumDataFromArtist(artistId);
+        try {
+            // TODO - Make sure this is not blocking the UI
+            currentAlbumIndex = 0;
+            String artistId = SpotifyController.getArtistId(artistName);
+            albums = SpotifyController.getAlbumDataFromArtist(artistId);
+            buttonFix();
+        } catch (Exception ex) {
+            buttonFix();
+            Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            titleLabel.setText("ERROR");
+                            albumLabel.setText("Artist not found");
+
+                        }
+                    });
+
+                }
+            });
+        }
+
     }
 
     @Override
@@ -245,9 +269,11 @@ public class FXMLDocumentController implements Initializable {
                             playButton.setOnAction(event -> {
                                 if (playButton.getText().equals("Pause") || (mediaPlayer != null && mediaPlayer.getMedia().getSource().equals(item))) {
                                     playPauseMusic();
+                                 
                                 } else {
                                     if (lastPlayButtonPressed != null) {
                                         lastPlayButtonPressed.setText("Play");
+                                       
                                     }
                                     lastPlayButtonPressed = playButton;
                                     startMusic(item);
@@ -307,33 +333,39 @@ public class FXMLDocumentController implements Initializable {
         progressIndicator.visibleProperty().bind(isLoading);
 
         //executorSearch will run the album search asynchronously
-        ScheduledExecutorService executorSearch = Executors.newSingleThreadScheduledExecutor();
         //This code will be run whenever the user presses ENTER on the text area
         input.setOnKeyPressed(e -> {
+            ScheduledExecutorService executorSearch = Executors.newSingleThreadScheduledExecutor();
             executorSearch.submit(new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
                     if (e.getCode() == KeyCode.ENTER) {
                         if ("".compareTo(input.getText()) != 0) {
                             currentAlbumIndex = 0;
-                            artistName = input.getText();
-                            search(artistName);
 
+                            search(input.getText());
+                            executorSearch.shutdownNow();
                         }
+
                     }
                     return null;
                 }
+
             });
+
         });
 
         //Setting listeners for both album switch buttons (left and right)
         rightButton.setOnAction(e -> {
             try {
                 if (currentAlbumIndex != albums.size() - 1 && albums.size() != 0) {
-                    currentAlbumIndex++;
+                    currentAlbumIndex++;                
                 }
                 displayAlbum(currentAlbumIndex);
+                buttonFix();
+                lastPlayButtonPressed.fire();
             } catch (Exception error) {
+                buttonFix();
             }
         });
 
@@ -343,19 +375,10 @@ public class FXMLDocumentController implements Initializable {
                     currentAlbumIndex--;
                 }
                 displayAlbum(currentAlbumIndex);
+                buttonFix();
+               lastPlayButtonPressed.fire();
             } catch (Exception error) {
-            }
-        });
-
-        playButton.setOnAction(e -> {
-            try {
-                if (lastPlayButtonPressed == null) {
-                    lastPlayButtonPressed = playButton;
-                    startMusic(albums.get(currentAlbumIndex).getTracks().get(0).getUrl());
-                    playButton.setText("Pause");
-                }
-                playPauseMusic();
-            } catch (Exception error) {
+                buttonFix();
             }
         });
 
@@ -383,9 +406,9 @@ public class FXMLDocumentController implements Initializable {
         displayAlbum(0);
 
     }
-
     // This will get called automatically when window is closed
     // See spotifyPlayer.java for details about the setup!
+
     public void shutdownSlider() {
         if (sliderExecutor != null) {
             sliderExecutor.shutdown();
@@ -395,11 +418,7 @@ public class FXMLDocumentController implements Initializable {
 
     public void search(String name) {
         isLoading.set(true);
-        try {
-            searchAlbumsFromArtist(name);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "The artist couldn't be found");
-        }
+        searchAlbumsFromArtist(name);
         displayAlbum(currentAlbumIndex);
         isLoading.set(false);
     }
@@ -452,11 +471,20 @@ public class FXMLDocumentController implements Initializable {
 
                     }
                 } catch (Exception error) {
-
+                    buttonFix();
                 }
                 return null;
             }
         });
+    }
+
+    public void buttonFix() {
+        if (lastPlayButtonPressed != null) {
+            if (lastPlayButtonPressed.getText().compareTo("Pause") == 0) {
+                lastPlayButtonPressed.fire();
+                mediaPlayer.dispose();
+            }
+        }
     }
 
 }

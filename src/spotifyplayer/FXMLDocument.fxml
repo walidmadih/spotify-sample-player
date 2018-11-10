@@ -54,7 +54,6 @@
       <Button fx:id="leftButton" layoutX="278.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&lt;" />
       <Button fx:id="rightButton" layoutX="589.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&gt;" />
       <ImageView fx:id="albumImageView" fitHeight="257.0" fitWidth="250.0" layoutX="14.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true" />
-      <Button fx:id="playButton" layoutX="14.0" layoutY="422.0" mnemonicParsing="false" text="Play" />
       <Label fx:id="timeLabel" layoutX="535.0" layoutY="426.0" prefHeight="17.0" prefWidth="70.0" text="0:00 / 0:00" />
     </children>
 </AnchorPane>
