@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -101,6 +103,8 @@ public class FXMLDocumentController implements Initializable {
     MediaPlayer mediaPlayer = null;
     boolean isSliderAnimationActive = false;
     Button lastPlayButtonPressed = null;
+    double currentTime;
+    double maxTime;
 
     //Change to true to see progress indicator
     private BooleanProperty isLoading = new SimpleBooleanProperty(false);
@@ -121,9 +125,7 @@ public class FXMLDocumentController implements Initializable {
             mediaPlayer = new MediaPlayer(new Media(url));
 
             mediaPlayer.setOnReady(() -> {
-                System.out.println(url);
                 mediaPlayer.play();
-                System.out.println("Sound ON...");
                 isSliderAnimationActive = true;
                 trackSlider.setValue(0);
                 trackSlider.setMax(30.0);
@@ -132,28 +134,14 @@ public class FXMLDocumentController implements Initializable {
             mediaPlayer.setOnEndOfMedia(() -> {
                 mediaPlayer.pause();
                 mediaPlayer.seek(Duration.ZERO);
-
                 isSliderAnimationActive = false;
                 trackSlider.setValue(0);
             });
+            trackSlider.setMax(maxTime);
 
-            /*ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.submit(new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                while (mediaPlayer.getCurrentTime().compareTo((mediaPlayer.getTotalDuration())) <= 0) {
-                    timeLabel.setText(mediaPlayer.getCurrentTime().toMinutes()
-                            + ":" + (mediaPlayer.getCurrentTime().toMinutes() % 60)
-                            + " / " + mediaPlayer.getTotalDuration().toMinutes()
-                            + ":" + (mediaPlayer.getTotalDuration().toSeconds() % 60));
-                }
-                return null;
-            }
-
-        });*/
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(null, "The preview track might not be availible");
-            System.out.println(url);
+            shutdownSlider();
         }
     }
 
@@ -182,7 +170,6 @@ public class FXMLDocumentController implements Initializable {
                 isSliderAnimationActive = false;
             }
         } catch (Exception e) {
-            System.err.println("Error playing/pausing song...");
         }
     }
 
@@ -223,10 +210,6 @@ public class FXMLDocumentController implements Initializable {
                 tracks.add(trackForTable);
             }
             tracksTableView.setItems(new ObservableListWrapper(tracks));
-
-            trackSlider.setDisable(true);
-            trackSlider.setValue(0.0);
-
         }
     }
 
@@ -309,12 +292,12 @@ public class FXMLDocumentController implements Initializable {
                     public void run() {
                         // Move slider
                         if (isSliderAnimationActive) {
-                            trackSlider.setValue(trackSlider.getValue() + 1.0);
+                            trackSlider.setValue(trackSlider.getValue() + 0.016);
                         }
                     }
                 });
             }
-        }, 1, 1, TimeUnit.SECONDS);
+        }, 16, 16, TimeUnit.MILLISECONDS);
 
         //Setting the border of the pane
         pane.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
@@ -375,6 +358,26 @@ public class FXMLDocumentController implements Initializable {
             } catch (Exception error) {
             }
         });
+
+        trackSlider.valueProperty().addListener(new ChangeListener() {
+
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                maxTime = mediaPlayer.getTotalDuration().toMillis();
+                currentTime = mediaPlayer.getCurrentTime().toMillis();
+                int maxMinutes = (int) (maxTime / 60000);
+                int maxSeconds = (int) (maxTime / 1000) - maxMinutes * 1000;
+
+                int currentMinutes = (int) (currentTime / 60000);
+                int currentSeconds = (int) (currentTime / 1000) - currentMinutes * 1000;
+                if (currentSeconds < 10) {
+                    timeLabel.setText(currentMinutes + ":0" + currentSeconds + " / " + maxMinutes + ":" + maxSeconds);
+                } else {
+                    timeLabel.setText(currentMinutes + ":" + currentSeconds + " / " + maxMinutes + ":" + maxSeconds);
+                }
+            }
+
+        });
         artistName = "lil pump";
         searchAlbumsFromArtist(artistName);
         displayAlbum(0);
@@ -387,8 +390,7 @@ public class FXMLDocumentController implements Initializable {
         if (sliderExecutor != null) {
             sliderExecutor.shutdown();
         }
-
-        Platform.exit();
+        trackSlider.setValue(0);
     }
 
     public void search(String name) {
@@ -404,50 +406,57 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     public void saveAlbumCovers(ActionEvent e) {
-        try {
-            String saveArtist = albums.get(0).getArtistName();
-            File directory = new File("./Images/" + saveArtist);
-            directory.mkdir();
-            for (Album album : albums) {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.submit(new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    String saveArtist = albums.get(0).getArtistName();
+                    File directory = new File("./Images/" + saveArtist);
+                    directory.mkdir();
+                    for (Album album : albums) {
 
-                    String saveAlbum = album.getAlbumName();
-                    if (saveAlbum.contains("/")) {
-                        saveAlbum = saveAlbum.replace("/", "");
-                    }
-                    if (saveAlbum.contains("\\")) {
-                        saveAlbum = saveAlbum.replace("\\", "");
-                    }
-                    if (saveAlbum.contains(":")) {
-                        saveAlbum = saveAlbum.replace(":", "");
-                    }
-                    if (saveAlbum.contains("*")) {
-                        saveAlbum = saveAlbum.replace("*", "");
-                    }
-                    if (saveAlbum.contains("?")) {
-                        saveAlbum = saveAlbum.replace("?", "");
-                    }
-                    if (saveAlbum.contains("\"")) {
-                        saveAlbum = saveAlbum.replace("\"", "");
-                    }
-                    if (saveAlbum.contains("<")) {
-                        saveAlbum = saveAlbum.replace("<", "");
-                    }
-                    if (saveAlbum.contains(">")) {
-                        saveAlbum = saveAlbum.replace(">", "");
-                    }
-                    if (saveAlbum.contains("|")) {
-                        saveAlbum = saveAlbum.replace("|", "");
-                    }
+                        String saveAlbum = album.getAlbumName();
+                        if (saveAlbum.contains("/")) {
+                            saveAlbum = saveAlbum.replace("/", "");
+                        }
+                        if (saveAlbum.contains("\\")) {
+                            saveAlbum = saveAlbum.replace("\\", "");
+                        }
+                        if (saveAlbum.contains(":")) {
+                            saveAlbum = saveAlbum.replace(":", "");
+                        }
+                        if (saveAlbum.contains("*")) {
+                            saveAlbum = saveAlbum.replace("*", "");
+                        }
+                        if (saveAlbum.contains("?")) {
+                            saveAlbum = saveAlbum.replace("?", "");
+                        }
+                        if (saveAlbum.contains("\"")) {
+                            saveAlbum = saveAlbum.replace("\"", "");
+                        }
+                        if (saveAlbum.contains("<")) {
+                            saveAlbum = saveAlbum.replace("<", "");
+                        }
+                        if (saveAlbum.contains(">")) {
+                            saveAlbum = saveAlbum.replace(">", "");
+                        }
+                        if (saveAlbum.contains("|")) {
+                            saveAlbum = saveAlbum.replace("|", "");
+                        }
 
-                    Image cover = new Image(album.getImageURL());
-                    BufferedImage coverImage = SwingFXUtils.fromFXImage(cover, null);
-                    ImageIO.write(coverImage, "png", new File("images/" + saveArtist + "/"
-                            + saveAlbum + ".png"));
-               
+                        Image cover = new Image(album.getImageURL());
+                        BufferedImage coverImage = SwingFXUtils.fromFXImage(cover, null);
+                        ImageIO.write(coverImage, "png", new File("images/" + saveArtist + "/"
+                                + saveAlbum + ".png"));
+
+                    }
+                } catch (Exception error) {
+
+                }
+                return null;
             }
-        } catch (Exception error) {
-
-        }
+        });
     }
 
 }

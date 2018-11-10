@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="462.0" prefWidth="629.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="spotifyplayer.FXMLDocumentController">
+<AnchorPane id="AnchorPane" prefHeight="462.0" prefWidth="629.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="spotifyplayer.FXMLDocumentController">
     <children>
       <MenuBar layoutY="1.0">
         <menus>
@@ -55,6 +55,6 @@
       <Button fx:id="rightButton" layoutX="589.0" layoutY="140.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="31.0" text="&gt;" />
       <ImageView fx:id="albumImageView" fitHeight="257.0" fitWidth="250.0" layoutX="14.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true" />
       <Button fx:id="playButton" layoutX="14.0" layoutY="422.0" mnemonicParsing="false" text="Play" />
-      <Label fx:id="timeLabel" layoutX="535.0" layoutY="426.0" prefHeight="17.0" prefWidth="70.0" text="00:00/00:00" />
+      <Label fx:id="timeLabel" layoutX="535.0" layoutY="426.0" prefHeight="17.0" prefWidth="70.0" text="0:00 / 0:00" />
     </children>
 </AnchorPane>
