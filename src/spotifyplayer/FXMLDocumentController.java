@@ -107,13 +107,17 @@ public class FXMLDocumentController implements Initializable {
 
     //Change to true to see progress indicator
     private BooleanProperty isLoading = new SimpleBooleanProperty(false);
-
     ArrayList<Album> albums = null;
     int currentAlbumIndex = 0;
     String artistName;
 
     private void startMusic(String url) {
         try {
+            if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
+                if (mediaPlayer != null) {
+                    lastPlayButtonPressed.fire();
+                }
+            }
             lastPlayButtonPressed.setText("Pause");
             trackSlider.setDisable(false);
 
@@ -142,8 +146,6 @@ public class FXMLDocumentController implements Initializable {
             titleLabel.setText("ERROR");
             albumLabel.setText("Track preview might not be availible");
             trackSlider.setValue(0.0);
-            mediaPlayer.dispose();
-            buttonFix();
         }
     }
 
@@ -172,7 +174,6 @@ public class FXMLDocumentController implements Initializable {
                 isSliderAnimationActive = false;
             }
         } catch (Exception e) {
-            buttonFix();
         }
     }
 
@@ -222,9 +223,7 @@ public class FXMLDocumentController implements Initializable {
             currentAlbumIndex = 0;
             String artistId = SpotifyController.getArtistId(artistName);
             albums = SpotifyController.getAlbumDataFromArtist(artistId);
-            buttonFix();
         } catch (Exception ex) {
-            buttonFix();
             Platform.runLater(new Runnable() {
 
                 @Override
@@ -269,14 +268,15 @@ public class FXMLDocumentController implements Initializable {
                             playButton.setOnAction(event -> {
                                 if (playButton.getText().equals("Pause") || (mediaPlayer != null && mediaPlayer.getMedia().getSource().equals(item))) {
                                     playPauseMusic();
-                                 
+
                                 } else {
                                     if (lastPlayButtonPressed != null) {
                                         lastPlayButtonPressed.setText("Play");
-                                       
+
                                     }
                                     lastPlayButtonPressed = playButton;
                                     startMusic(item);
+
                                 }
                             });
 
@@ -358,27 +358,32 @@ public class FXMLDocumentController implements Initializable {
         //Setting listeners for both album switch buttons (left and right)
         rightButton.setOnAction(e -> {
             try {
-                if (currentAlbumIndex != albums.size() - 1 && albums.size() != 0) {
-                    currentAlbumIndex++;                
+                if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
+                    if (mediaPlayer != null) {
+                        lastPlayButtonPressed.fire();
+                    }
+                }
+                if (currentAlbumIndex != albums.size() - 1 && !albums.isEmpty()) {
+                    currentAlbumIndex++;
                 }
                 displayAlbum(currentAlbumIndex);
-                buttonFix();
-                lastPlayButtonPressed.fire();
             } catch (Exception error) {
-                buttonFix();
             }
         });
 
         leftButton.setOnAction(e -> {
             try {
+                if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
+                    if (mediaPlayer != null) {
+                        lastPlayButtonPressed.fire();
+                    }
+                }
                 if (currentAlbumIndex != 0) {
                     currentAlbumIndex--;
                 }
+
                 displayAlbum(currentAlbumIndex);
-                buttonFix();
-               lastPlayButtonPressed.fire();
             } catch (Exception error) {
-                buttonFix();
             }
         });
 
@@ -419,8 +424,14 @@ public class FXMLDocumentController implements Initializable {
     public void search(String name) {
         isLoading.set(true);
         searchAlbumsFromArtist(name);
+        if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
+            if (mediaPlayer != null) {
+                lastPlayButtonPressed.fire();
+            }
+        }
         displayAlbum(currentAlbumIndex);
         isLoading.set(false);
+
     }
 
     @FXML
@@ -471,20 +482,10 @@ public class FXMLDocumentController implements Initializable {
 
                     }
                 } catch (Exception error) {
-                    buttonFix();
                 }
                 return null;
             }
         });
-    }
-
-    public void buttonFix() {
-        if (lastPlayButtonPressed != null) {
-            if (lastPlayButtonPressed.getText().compareTo("Pause") == 0) {
-                lastPlayButtonPressed.fire();
-                mediaPlayer.dispose();
-            }
-        }
     }
 
 }
