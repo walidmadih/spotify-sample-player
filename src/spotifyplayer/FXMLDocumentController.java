@@ -113,11 +113,7 @@ public class FXMLDocumentController implements Initializable {
 
     private void startMusic(String url) {
         try {
-            if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
-                if (mediaPlayer != null) {
-                    lastPlayButtonPressed.fire();
-                }
-            }
+
             lastPlayButtonPressed.setText("Pause");
             trackSlider.setDisable(false);
 
@@ -358,11 +354,6 @@ public class FXMLDocumentController implements Initializable {
         //Setting listeners for both album switch buttons (left and right)
         rightButton.setOnAction(e -> {
             try {
-                if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
-                    if (mediaPlayer != null) {
-                        lastPlayButtonPressed.fire();
-                    }
-                }
                 if (currentAlbumIndex != albums.size() - 1 && !albums.isEmpty()) {
                     currentAlbumIndex++;
                 }
@@ -373,11 +364,7 @@ public class FXMLDocumentController implements Initializable {
 
         leftButton.setOnAction(e -> {
             try {
-                if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
-                    if (mediaPlayer != null) {
-                        lastPlayButtonPressed.fire();
-                    }
-                }
+
                 if (currentAlbumIndex != 0) {
                     currentAlbumIndex--;
                 }
@@ -406,7 +393,7 @@ public class FXMLDocumentController implements Initializable {
             }
 
         });
-        artistName = "lil pump";
+        artistName = "lil peep";
         searchAlbumsFromArtist(artistName);
         displayAlbum(0);
 
@@ -424,11 +411,6 @@ public class FXMLDocumentController implements Initializable {
     public void search(String name) {
         isLoading.set(true);
         searchAlbumsFromArtist(name);
-        if ((lastPlayButtonPressed != null) && (lastPlayButtonPressed.getText().compareTo("Pause") == 0) && (!lastPlayButtonPressed.isDisabled())) {
-            if (mediaPlayer != null) {
-                lastPlayButtonPressed.fire();
-            }
-        }
         displayAlbum(currentAlbumIndex);
         isLoading.set(false);
 
